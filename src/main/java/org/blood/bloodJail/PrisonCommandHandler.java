@@ -95,6 +95,7 @@ public class PrisonCommandHandler implements CommandExecutor, TabCompleter {
         }
 
         messages.broadcast("prison.broadcast", "player", targetName, "jailed-by", jailedBy, "time", formatted, "reason", reason);
+        plugin.getDiscordWebhook().sendJail(targetName, jailedBy, formatted, reason);
 
         return true;
     }

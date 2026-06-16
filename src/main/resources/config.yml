@@ -7,3 +7,7 @@ jail:
   yaw: 0.0
   pitch: 0.0
 
+# Discord webhook for jail/release notifications. Set to "disabled" to turn off.
+discord:
+  webhook-url: "disabled"
+

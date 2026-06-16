@@ -13,6 +13,7 @@ public final class BloodJail extends JavaPlugin {
 
     private PrisonManager prisonManager;
     private MessageService messageService;
+    private DiscordWebhook discordWebhook;
     private BukkitTask timerTask;
 
     @Override
@@ -22,6 +23,9 @@ public final class BloodJail extends JavaPlugin {
 
         this.messageService = new MessageService(this);
         this.messageService.load();
+
+        this.discordWebhook = new DiscordWebhook(getLogger());
+        this.discordWebhook.setUrl(getConfig().getString("discord.webhook-url", "disabled"));
 
         this.prisonManager = new PrisonManager(this);
         this.prisonManager.load();
@@ -80,13 +84,14 @@ public final class BloodJail extends JavaPlugin {
 
             messageService.send(onlinePlayer, "release.personal");
         }
+        String playerName = record.getPlayerName() != null ? record.getPlayerName() : player.getName();
+        if (playerName == null) {
+            playerName = player.getUniqueId().toString();
+        }
         if (broadcast) {
-            String playerName = record.getPlayerName() != null ? record.getPlayerName() : player.getName();
-            if (playerName == null) {
-                playerName = player.getUniqueId().toString();
-            }
             messageService.broadcast("release.broadcast", "player", playerName, "reason", reasonLabel);
         }
+        discordWebhook.sendRelease(playerName, reasonLabel);
     }
 
     private void startTimerTask() {
@@ -117,6 +122,10 @@ public final class BloodJail extends JavaPlugin {
 
     public MessageService getMessageService() {
         return messageService;
+    }
+
+    public DiscordWebhook getDiscordWebhook() {
+        return discordWebhook;
     }
 
     private void bindCommand(String commandName, PrisonCommandHandler handler) {

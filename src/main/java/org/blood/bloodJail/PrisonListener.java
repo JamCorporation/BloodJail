@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PrisonListener implements Listener {
@@ -67,6 +68,21 @@ public class PrisonListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onCommand(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission("bloodjail.bypass")) {
+            return;
+        }
+        if (prisonManager.isJailed(player.getUniqueId())) {
+            String message = event.getMessage().toLowerCase();
+            if (message.startsWith("/warp")) {
+                event.setCancelled(true);
+                messages.send(player, "jail.block.command");
+            }
+        }
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -92,6 +108,8 @@ public class PrisonListener implements Listener {
 
         long remaining = record.getRemainingMillis(System.currentTimeMillis());
         messages.send(player, "jail.still-jailed", "time", TimeUtil.formatCompactDuration(remaining));
+        messages.send(player, "jail.still-jailed-by", "jailed-by", record.getJailedBy());
+        messages.send(player, "jail.still-jailed-reason", "reason", record.getReason());
     }
 
     private Player resolveAttacker(EntityDamageByEntityEvent event) {

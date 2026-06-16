@@ -40,7 +40,19 @@ public class MessageService {
             this.messages.setDefaults(defaults);
         }
 
-        if (migrateLegacyMessages()) {
+        boolean addedMissing = false;
+        InputStream resource2 = plugin.getResource("messages.yml");
+        if (resource2 != null) {
+            YamlConfiguration defaults2 = YamlConfiguration.loadConfiguration(new InputStreamReader(resource2, StandardCharsets.UTF_8));
+            for (String key : defaults2.getKeys(true)) {
+                if (!defaults2.isConfigurationSection(key) && !this.messages.contains(key)) {
+                    this.messages.set(key, defaults2.get(key));
+                    addedMissing = true;
+                }
+            }
+        }
+
+        if (migrateLegacyMessages() || addedMissing) {
             try {
                 this.messages.save(file);
             } catch (Exception ex) {
