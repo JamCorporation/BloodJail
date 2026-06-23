@@ -76,7 +76,7 @@ public class PrisonListener implements Listener {
         }
         if (prisonManager.isJailed(player.getUniqueId())) {
             String message = event.getMessage().toLowerCase();
-            if (message.startsWith("/warp")) {
+            if (message.startsWith("/warp") || message.startsWith("/scale")) {
                 event.setCancelled(true);
                 messages.send(player, "jail.block.command");
             }
